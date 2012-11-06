@@ -58,6 +58,7 @@
     // isExecuting flag and calling doWork.  This should probably not be
     // overridden by child classes unless you want to duplicate it entirely.
     
+//    NSLog(@"%s", __PRETTY_FUNCTION__);
     if (!self.isCancelled) {
         [self willChangeValueForKey:@"isExecuting"];
         _isExecuting = YES;
@@ -81,13 +82,15 @@
     // If overridden by child classes, always call [super finish] LAST.
     
     if (_managedObjectContext && self.managedObjectContext.hasChanges) {
-        NSError *error;
-        do {
-            error = nil;
-            if (![self.managedObjectContext save:&error]) {
-                NSLog(@"error saving managed object context!\n%d - %@\ndebugInfo = %@\nuserInfo = %@", error.code, error.localizedDescription, error.debugDescription, error.userInfo);
-            }
-        } while (error && [self resolveSaveError:error]);
+        [self.parentContext performBlockAndWait:^{
+            NSError *error;
+            do {
+                error = nil;
+                if (![self.managedObjectContext save:&error]) {
+                    NSLog(@"error saving managed object context!\n%d - %@\ndebugInfo = %@\nuserInfo = %@", error.code, error.localizedDescription, error.debugDescription, error.userInfo);
+                }
+            } while (error && [self resolveSaveError:error]);
+        }];
     }
     
     // lower the isExecuting flag
@@ -101,6 +104,7 @@
     [self willChangeValueForKey:@"isFinished"];
     _isFinished = YES;
     [self didChangeValueForKey:@"isFinished"];
+//    NSLog(@"%s", __PRETTY_FUNCTION__);
 }
 
 - (BOOL)resolveSaveError:(NSError *)error {
