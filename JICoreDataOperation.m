@@ -82,15 +82,13 @@
     // If overridden by child classes, always call [super finish] LAST.
     
     if (_managedObjectContext && self.managedObjectContext.hasChanges) {
-        [self.parentContext performBlockAndWait:^{
-            NSError *error;
-            do {
-                error = nil;
-                if (![self.managedObjectContext save:&error]) {
-                    NSLog(@"error saving managed object context!\n%d - %@\ndebugInfo = %@\nuserInfo = %@", error.code, error.localizedDescription, error.debugDescription, error.userInfo);
-                }
-            } while (error && [self resolveSaveError:error]);
-        }];
+        NSError *error;
+        do {
+            error = nil;
+            if (![self.managedObjectContext save:&error]) {
+                NSLog(@"error saving managed object context!\n%d - %@\ndebugInfo = %@\nuserInfo = %@", error.code, error.localizedDescription, error.debugDescription, error.userInfo);
+            }
+        } while (error && [self resolveSaveError:error]);
     }
     
     // lower the isExecuting flag
