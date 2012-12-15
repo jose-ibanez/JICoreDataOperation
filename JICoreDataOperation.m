@@ -1,6 +1,5 @@
 //
 //  JICoreDataOperation.m
-//  Instagram
 //
 //  Created by Ibanez, Jose on 11/5/12.
 //  Copyright (c) 2012 Jose Ibanez. All rights reserved.
@@ -73,7 +72,10 @@
     // This method should be overridden by child classes to perform whatever
     // tasks the operation is supposed to accomplish.  It should not return
     // until the operation is considered to be finished, so be careful if you
-    // have any asynchonous method calls.
+    // have any asynchonous method calls.  Keep in mind that an operation will
+    // run in its own thread, so calling -[NSRunLoop runUntilDate:] in a loop
+    // would be safe.
+    // http://stackoverflow.com/questions/4923621/is-calling-nsrunloop-rununtildate-a-good-idea
 }
 
 - (void)finish {
