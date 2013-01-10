@@ -9,6 +9,7 @@
 
 @implementation JICoreDataOperation {
     BOOL _isExecuting, _isFinished;
+    NSThread *_mocThread;
 }
 @synthesize parentContext = _parentContext;
 @synthesize managedObjectContext = _managedObjectContext;
@@ -43,9 +44,11 @@
 - (NSManagedObjectContext *)managedObjectContext {
     if (!_managedObjectContext) {
         NSAssert(_parentContext != nil, @"parent context is nil!");
-        _managedObjectContext = [[NSManagedObjectContext alloc] init];
+        _managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSConfinementConcurrencyType];
         _managedObjectContext.parentContext = _parentContext;
+        _mocThread = [NSThread currentThread];
     }
+    NSAssert(_mocThread == [NSThread currentThread], @"_managedObjectContext belongs to another thread!");
     return _managedObjectContext;
 }
 
@@ -65,7 +68,9 @@
         [self doWork];
     }
     
-    [self finish];
+    if (!self.isConcurrent) {
+        [self finish];
+    }
 }
 
 - (void)doWork {
